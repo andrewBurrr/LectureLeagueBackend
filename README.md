@@ -1,5 +1,5 @@
 # Lecture League Backend
-## Created By: [Andrew Burton](https://github.com/andrewBurrr), [Kyle West]()
+## Created By: [Andrew Burton](https://github.com/andrewBurrr), [Kyle West](https://github.com/KyleOnTheWorldWideWeb)
 ### Started on: March 6, 2024
 #### Description: ...
 
@@ -11,7 +11,7 @@ Before you begin, ensure you have met the following requirements:
 ## Get started
 1. **Clone the repository**
 ```bash
-git clone https://github.com/andrewBurrr/lecture-league-backend.git
+git clone https://github.com/andrewBurrr/LectureLeagueBackend.git
 ```
 2. **Create a virtual Environment for Python**
 3. 
