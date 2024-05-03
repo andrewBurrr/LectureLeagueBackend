@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  django:
+    container_name: lectureleague-django
+    build:
+      context: ./core/
+      dockerfile: Dockerfile
+    command: gunicorn lectureleague.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static:/home/app/web/staticfiles:rw
+      - media:/home/app/web/mediafiles:rw
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    networks:
+      - lectureleague-network
+    env_file:
+      - ./core/.env.test
+
+  database:
+    container_name: lectureleague-database
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:rw
+    networks:
+      - lectureleague-network
+    env_file:
+      - .env.db.test
+
+  proxy:
+    container_name: lectureleague-proxy
+    image: nginx:latest
+    volumes:
+      - ./nginx:etc/nginx/conf.d:ro
+      - static:/home/proxy/staticfiles:rw
+      - media:/home/proxy/mediafiles:rw
+    ports:
+      - "8080:80"
+    depends_on:
+      - django
+    networks:
+      - lectureleague-network
+
+networks:
+  lectureleague-network:
+    name: lectureleague-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.1.0/24
+          gateway: 10.0.1.1
+
+volumes:
+  postgres_data:
+    name: postgres_data
+    driver: local
+  static:
+    name: static
+    driver: local
+  media:
+    name: media
+    driver: local

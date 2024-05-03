@@ -21,9 +21,10 @@ __pycache__/
 .DS_Store
 .idea
 .env.local
-.env.development
+core/.env.development
 .env.production
 .env.test
+.env.db.test
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
