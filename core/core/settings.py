@@ -23,12 +23,6 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, []),
     CORS_ALLOWED_ORIGINS=(list, []),
     CSRF_TRUSTED_ORIGINS=(list, []),
-    SQL_ENGINE=(str, "django.db.backends.sqlite3"),
-    SQL_DATABASE=(str, BASE_DIR / "db.sqlite3"),
-    SQL_USER=(str, "user"),
-    SQL_PASSWORD=(str, "password"),
-    SQL_HOST=(str, "localhost"),
-    SQL_PORT=(int, "5432"),
 )
 
 env.read_env(BASE_DIR / ".env.development")
@@ -78,8 +72,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -100,12 +93,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': env("SQL_ENGINE"),
-        'NAME': env("SQL_DATABASE"),
-        'USER': env("SQL_USER"),
-        'PASSWORD': env("SQL_PASSWORD"),
-        'HOST': env("SQL_HOST"),
-        'PORT': env("SQL_PORT"),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -176,10 +165,16 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mailserver'
+EMAIL_PORT = 1025
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
