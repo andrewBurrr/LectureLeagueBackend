@@ -64,19 +64,28 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
     
     def create(self, request):
+        """
+        Create a new user.
+        """
         serializer = CustomUserCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
     def retrieve(self, request, pk=None):
+        """
+        Retrieve the user's profile.
+        """
         user = self.get_object()
         serializer = CustomUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
     def update(self, request, pk=None):
+        """
+        Full update of the user's account.
+        """
         user = self.get_object()
         serializer = CustomUserSerializer(user, data=request.data, partial=False)
         if serializer.is_valid():
@@ -86,6 +95,9 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         
 
     def partial_update(self, request, pk=None):
+        """
+        Partial update of the user's account.
+        """
         user = self.get_object()
         serializer = CustomUserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
@@ -94,12 +106,15 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
+        """
+        Delete the user's account.
+        """
         user = self.get_object()
         user.delete()
         return Response(status=status.HTTP_200_OK)
     
 
-# class PublicUserViewSet(viewsets.ModelViewSet):
+# class ReadOnlyUserViewSet(viewsets.ModelViewSet):
 #     """
 #     Viewset to provide the following CRUD operations for the custom user model:
 #             - Retrieve
