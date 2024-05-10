@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import CustomUserCreateSerializer, CustomTokenObtainPairSerializer, CustomUserSerializer
-
+from .serializers import CustomUserInfoSerializer
 
 # # Create your views here.
 # class CreateUserView(generics.CreateAPIView):
@@ -79,7 +79,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         Retrieve the user's profile.
         """
         user = self.get_object()
-        serializer = CustomUserSerializer(user)
+        serializer = CustomUserInfoSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
     def update(self, request, pk=None):
@@ -105,6 +105,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
     def destroy(self, request, pk=None):
         """
         Delete the user's account.
@@ -118,7 +119,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
 #     """
 #     Viewset to provide the following CRUD operations for the custom user model:
 #             - Retrieve
-#     For use by the user for viewing other user's profiles.
+#     For use b'__all__'y the user for viewing other user's profiles.
 #     """
 
 #     queryset = CustomUser.objects.all()
