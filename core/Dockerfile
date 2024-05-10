@@ -33,7 +33,7 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 FROM python:3.10.13-slim-bookworm
 
 # create the app user
-RUN adduser -m app
+RUN useradd -m app
 
 # create the appropriate directories
 ENV HOME=/home/app

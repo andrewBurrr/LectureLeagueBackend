@@ -1,11 +1,23 @@
-import os
+import datetime
+import json
+import random
 import re
+import uuid
+from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
 from parsers import CourseParser
 from datatypes import Course
+
+
+def write_json(data, filename):
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
+
+
+course_fixtures = []
 
 
 class FacultyScraper:
@@ -67,6 +79,7 @@ class CourseScraper:
         self.data = []
 
     def scrape(self):
+        global course_fixtures
         response = requests.get(self.url)
         soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -99,16 +112,27 @@ class CourseScraper:
                 title, number, topic = course_parser.title_number_topic()
                 description, subtopics = course_parser.description_subtopics()
                 self.data.append(Course(title, code, number, topic, description, subtopics, parent_title))
-                # print("Raw Parent Text:", repr(parent_text))
-                # print("URL:", self.url)
-                # print("Data:", self.data)
+
+                course_fixtures.append({
+                    "model": "institutions.Course",
+                    "pk": str(uuid.uuid4()),
+                    "fields": {
+                        "institution": "",
+                        "name": title,
+                        "code": code,
+                        "number": number,
+                        "description": description,
+                        "date_created": datetime.datetime.now().isoformat(),
+                        "date_updated": datetime.datetime.now().isoformat()
+                    }
+                })
 
 
 class Node:
-    def __init__(self, title, code, type, children):
+    def __init__(self, title, code, category, children):
         self.title = title
         self.code = code
-        self.type = type
+        self.type = category
         self.children = children
 
     def __str__(self):
@@ -139,8 +163,77 @@ def print_tree(prefix, node, is_tail):
             print_tree(prefix + ("    " if is_tail else "│   "), child, is_last)
 
 
+def get_fake_institutions(num):
+    names = ['University of']
+    cities = ['Calgary', 'Edmonton', 'Vancouver', 'Toronto', 'Montreal', 'Ottawa', 'Victoria', 'Winnipeg']
+    states = ['Alberta', 'British Columbia', 'Ontario', 'Quebec', 'Manitoba', 'Saskatchewan', 'Nova Scotia']
+    countries = ['Canada']
+    descriptions = ['A university', 'A college', 'An institution']
+
+    fake_institutions = []
+
+    for i in range(num):
+        city = random.choice(cities)
+        fake_institution = {
+            "model": "institutions.Institution",
+            "pk": str(uuid.uuid4()),
+            "fields": {
+                "name": random.choice(names) + ' ' + city,
+                "city": city,
+                "state": random.choice(states),
+                "country": random.choice(countries),
+                "description": random.choice(descriptions),
+                "date_created": datetime.datetime.now().isoformat(),
+                "date_updated": datetime.datetime.now().isoformat()
+            }
+        }
+        fake_institutions.append(fake_institution)
+
+    return fake_institutions
+
+
+def get_fake_users(num):
+    first_names = ['John', 'Jane', 'Alice', 'Bob', 'Charlie', 'David', 'Eve', 'Frank', 'Grace', 'Hank']
+    last_names = ['Smith', 'Johnson', 'Williams', 'Jones', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor']
+    emails = ['@gmail.com', '@yahoo.com', '@hotmail.com', '@outlook.com', '@icloud.com', '@protonmail.com', '@aol.com']
+    password = 'pbkdf2_sha256$720000$VnXhYPJb20agTiewkeVo2v$CqPLUYSsjq5bgCrqf0WchfOn0WZbePcb560Qm4Pc9ts='
+
+    fake_users = []
+    for i in range(num):
+        first_name = random.choice(first_names)
+        last_name = random.choice(last_names)
+        user = {
+            "model": "users.CustomUser",
+            "pk": str(uuid.uuid4()),
+            "fields": {
+                "email": first_name.lower() + last_name.lower() + random.choice(emails),
+                "first_name": first_name,
+                "last_name": last_name,
+                "password": password,
+                "is_active": True,
+                "is_staff": False,
+                "date_joined": datetime.datetime.now().isoformat()
+            }
+        }
+        fake_users.append(user)
+    return fake_users
+
+
 if __name__ == '__main__':
+
+    current_directory = Path.cwd()
+    target = current_directory / 'core'
+
+    users = get_fake_users(10)
+    write_json(users, target / 'users.json')
+
+    institutions = get_fake_institutions(10)
+    write_json(institutions, target / 'institutions.json')
 
     faculty_scraper = FacultyScraper('https://www.ucalgary.ca/pubs/calendar/staging/archives/2023/course-by-faculty.html')
     faculty_scraper.scrape()
-    print_tree("", faculty_scraper.tree, True)
+
+    for institution in institutions:
+        for idx, course in enumerate(course_fixtures):
+            course_fixtures[idx]['fields']['institution'] = institution['pk']
+    write_json(course_fixtures, target / 'courses.json')
