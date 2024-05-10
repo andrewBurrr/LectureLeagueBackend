@@ -58,9 +58,9 @@ class UserAccountViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         """Instantiates and returns the list of permissions that this view requires."""
         if self.action == 'create':
-            permission_classes = [AllowAny()]
+            permission_classes = [AllowAny]
         else:
-            permission_classes = [IsAuthenticated()]
+            permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
     
     def create(self, request):
@@ -111,7 +111,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         """
         user = self.get_object()
         user.delete()
-        return Response(status=status.HTTP_200_OK)
+        return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
     
 
 # class ReadOnlyUserViewSet(viewsets.ModelViewSet):
